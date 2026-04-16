@@ -121,7 +121,7 @@ async def register_oauth_client(
             if not form_data.client_id or not form_data.client_secret:
                 raise HTTPException(
                     status_code=400,
-                    detail="oauth_client_id and oauth_client_secret are required for static registration",
+                    detail='oauth_client_id and oauth_client_secret are required for static registration',
                 )
             # Static credentials: skip dynamic registration, build from provided credentials
             oauth_client_info = await get_oauth_client_info_with_static_credentials(

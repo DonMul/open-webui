@@ -498,10 +498,10 @@ async def get_oauth_client_info_with_static_credentials(
 
         redirect_base_url = (str(request.app.state.config.WEBUI_URL or request.base_url)).rstrip('/')
         oauth_client_metadata = OAuthClientMetadata(
-            client_name="Open WebUI",
-            redirect_uris=[f"{redirect_base_url}/oauth/clients/{client_id}/callback"],
-            grant_types=["authorization_code", "refresh_token"],
-            response_types=["code"],
+            client_name='Open WebUI',
+            redirect_uris=[f'{redirect_base_url}/oauth/clients/{client_id}/callback'],
+            grant_types=['authorization_code', 'refresh_token'],
+            response_types=['code'],
         )
 
         # Discover server metadata (authorization endpoint, token endpoint, scopes, etc.)
@@ -518,46 +518,38 @@ async def get_oauth_client_info_with_static_credentials(
                                 oauth_client_metadata.scope is None
                                 and oauth_server_metadata.scopes_supported is not None
                             ):
-                                oauth_client_metadata.scope = " ".join(oauth_server_metadata.scopes_supported)
+                                oauth_client_metadata.scope = ' '.join(oauth_server_metadata.scopes_supported)
 
-                            supported_auth_methods = (
-                                oauth_server_metadata.token_endpoint_auth_methods_supported
-                                or []
-                            )
+                            supported_auth_methods = oauth_server_metadata.token_endpoint_auth_methods_supported or []
                             if (
                                 supported_auth_methods
-                                and oauth_client_metadata.token_endpoint_auth_method
-                                not in supported_auth_methods
+                                and oauth_client_metadata.token_endpoint_auth_method not in supported_auth_methods
                             ):
-                                if "client_secret_post" in supported_auth_methods:
-                                    oauth_client_metadata.token_endpoint_auth_method = (
-                                        "client_secret_post"
-                                    )
-                                elif "client_secret_basic" in supported_auth_methods:
-                                    oauth_client_metadata.token_endpoint_auth_method = (
-                                        "client_secret_basic"
-                                    )
+                                if 'client_secret_post' in supported_auth_methods:
+                                    oauth_client_metadata.token_endpoint_auth_method = 'client_secret_post'
+                                elif 'client_secret_basic' in supported_auth_methods:
+                                    oauth_client_metadata.token_endpoint_auth_method = 'client_secret_basic'
                                 else:
-                                    oauth_client_metadata.token_endpoint_auth_method = (
-                                        supported_auth_methods[0]
-                                    )
+                                    oauth_client_metadata.token_endpoint_auth_method = supported_auth_methods[0]
                             break
                         except Exception as e:
                             log.error(f'Error parsing OAuth metadata from {url}: {e}')
                             continue
 
-        oauth_client_info = OAuthClientInformationFull.model_validate({
-            "client_id": oauth_client_id,
-            "client_secret": oauth_client_secret,
-            "issuer": oauth_server_metadata_url,
-            "server_metadata": oauth_server_metadata,
-            "redirect_uris": oauth_client_metadata.redirect_uris,
-            "grant_types": oauth_client_metadata.grant_types,
-            "response_types": oauth_client_metadata.response_types,
-            "client_name": oauth_client_metadata.client_name,
-            "scope": oauth_client_metadata.scope,
-            "token_endpoint_auth_method": oauth_client_metadata.token_endpoint_auth_method,
-        })
+        oauth_client_info = OAuthClientInformationFull.model_validate(
+            {
+                'client_id': oauth_client_id,
+                'client_secret': oauth_client_secret,
+                'issuer': oauth_server_metadata_url,
+                'server_metadata': oauth_server_metadata,
+                'redirect_uris': oauth_client_metadata.redirect_uris,
+                'grant_types': oauth_client_metadata.grant_types,
+                'response_types': oauth_client_metadata.response_types,
+                'client_name': oauth_client_metadata.client_name,
+                'scope': oauth_client_metadata.scope,
+                'token_endpoint_auth_method': oauth_client_metadata.token_endpoint_auth_method,
+            }
+        )
 
         log.info(
             f'Static OAuth client info built for {oauth_client_id} using metadata from {oauth_server_metadata_url}'
