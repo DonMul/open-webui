@@ -101,6 +101,7 @@ class OAuthClientRegistrationForm(BaseModel):
     url: str
     client_id: str
     client_name: Optional[str] = None
+    oauth_client_id: Optional[str] = None
     client_secret: Optional[str] = None
 
 
@@ -117,12 +118,17 @@ async def register_oauth_client(
             oauth_client_id = f'{type}:{form_data.client_id}'
 
         if form_data.client_secret:
+            if not form_data.client_id or not form_data.client_secret:
+                raise HTTPException(
+                    status_code=400,
+                    detail="oauth_client_id and oauth_client_secret are required for static registration",
+                )
             # Static credentials: skip dynamic registration, build from provided credentials
             oauth_client_info = await get_oauth_client_info_with_static_credentials(
                 request,
                 oauth_client_id,
                 form_data.url,
-                oauth_client_id=form_data.client_id,
+                oauth_client_id=form_data.oauth_client_id,
                 oauth_client_secret=form_data.client_secret,
             )
         else:

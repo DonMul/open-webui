@@ -89,7 +89,7 @@
 		const formData: { url: string; client_id: string; client_secret?: string } = {
 			url: url,
 			client_id: id,
-			...(auth_type === 'oauth_2.1_static' ? { client_secret: oauthClientSecret } : {})
+			...(auth_type === 'oauth_2.1_static' ? { client_secret: oauthClientSecret, oauth_client_id: oauthClientId } : {})
 		};
 
 		const res = await registerOAuthClient(localStorage.token, formData, 'mcp').catch((err) => {
